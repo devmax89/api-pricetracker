@@ -3,6 +3,7 @@ const router = express.Router();
 
 const productsRoutes = require('./products');
 const statsRoutes = require('./stats');
+const categoriesRoutes = require('./categories');
 
 // Health check
 router.get('/health', (req, res) => {
@@ -17,5 +18,6 @@ router.get('/health', (req, res) => {
 // Mount routes
 router.use('/products', productsRoutes);
 router.use('/stats', statsRoutes);
+router.use('/categories', categoriesRoutes);
 
 module.exports = router;
