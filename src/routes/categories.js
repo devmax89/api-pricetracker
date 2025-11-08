@@ -28,7 +28,6 @@ router.get('/', async (req, res) => {
         COUNT(p.id)::int as product_count
       FROM categories c
       LEFT JOIN products p ON p.category = c.slug AND p.is_active = true
-      WHERE c.is_featured = true
       GROUP BY c.slug, c.name, c.name_plural, c.icon, c.is_featured, c.sort_order
       ORDER BY c.sort_order ASC
     `;
