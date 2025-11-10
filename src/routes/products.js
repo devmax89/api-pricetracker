@@ -212,7 +212,8 @@ router.get('/:id/prices', async (req, res) => {
         price,
         availability,
         scraped_at,
-        url
+        url,
+        condition
       FROM price_history
       WHERE product_id = $1
       ORDER BY retailer, scraped_at DESC
