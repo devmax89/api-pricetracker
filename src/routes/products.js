@@ -168,6 +168,7 @@ router.get('/:id', async (req, res) => {
 /**
  * GET /api/products/:id/prices
  * Prezzi nuovo e usato per un prodotto con stats
+ * 🆕 UPDATED: Include MediaWorld Ricondizionati fields
  */
 router.get('/:id/prices', async (req, res) => {
   const productId = parseInt(req.params.id);
@@ -223,6 +224,7 @@ router.get('/:id/prices', async (req, res) => {
     const new_prices = newPricesResult.rows;
     
     // 3. Used listings (active only, ordered by price)
+    // 🆕 UPDATED: Added source, grading, discount_percentage, original_price, new_price
     const usedQuery = `
       SELECT 
         id,
@@ -234,9 +236,14 @@ router.get('/:id/prices', async (req, res) => {
         province,
         condition,
         seller_type,
+        source,
         posted_at,
         scraped_at,
-        last_checked_at
+        last_checked_at,
+        grading,
+        discount_percentage,
+        original_price,
+        new_price
       FROM used_listings
       WHERE product_id = $1 
         AND is_active = true
@@ -328,6 +335,7 @@ router.get('/:id/history', async (req, res) => {
 /**
  * GET /api/products/:id/used/nearby
  * Annunci usato nelle vicinanze
+ * 🆕 UPDATED: Added source field
  */
 router.get('/:id/used/nearby', async (req, res) => {
   const productId = parseInt(req.params.id);
@@ -352,9 +360,12 @@ router.get('/:id/used/nearby', async (req, res) => {
         city, 
         province,
         condition, 
-        seller_type, 
+        seller_type,
+        source,
         posted_at, 
-        scraped_at
+        scraped_at,
+        grading,
+        discount_percentage
       FROM used_listings
       WHERE product_id = $1 
         AND is_active = true
