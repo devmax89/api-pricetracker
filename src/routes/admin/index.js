@@ -3,9 +3,10 @@ const router = express.Router();
 
 const productsRoutes = require('./products');
 const alertsRoutes = require('./alerts');
+const pricesRoutes = require('./prices');
 
-// Mount admin routes
 router.use('/products', productsRoutes);
 router.use('/alerts', alertsRoutes);
+router.use('/', pricesRoutes);
 
 module.exports = router;

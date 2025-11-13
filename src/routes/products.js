@@ -135,7 +135,13 @@ router.get('/:id', async (req, res) => {
         p.category as category_slug,
         p.description,
         p.image_url,
+        p.is_active,
         p.amazon_url,
+        p.mediaworld_url,
+        p.mediaworld_ricondizionati_url,
+        p.ldlc_url,
+        p.akinformatica_url,
+        p.nexths_url,
         p.subito_url,
         p.created_at,
         p.updated_at

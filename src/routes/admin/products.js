@@ -88,9 +88,14 @@ router.post('/', async (req, res) => {
       model, 
       category, 
       description, 
-      amazon_url, 
-      subito_url, 
-      image_url 
+      image_url,
+      amazon_url,
+      mediaworld_url,
+      mediaworld_ricondizionati_url,
+      ldlc_url,
+      akinformatica_url,
+      nexths_url,
+      subito_url
     } = req.body;
 
     // Validazione
@@ -101,14 +106,28 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Genera slug automaticamente
+    const slug = name.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Rimuovi caratteri speciali
+      .replace(/\s+/g, '-')          // Spazi → trattini
+      .replace(/-+/g, '-')           // Multipli trattini → singolo
+      .trim();
+
     const result = await db.query(`
       INSERT INTO products (
-        name, brand, model, category, description, 
-        amazon_url, subito_url, image_url, is_active
+        name, brand, model, category, description, image_url,
+        amazon_url, mediaworld_url, mediaworld_ricondizionati_url,
+        ldlc_url, akinformatica_url, nexths_url, subito_url,
+        slug, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true)
       RETURNING *
-    `, [name, brand, model, category, description, amazon_url, subito_url, image_url]);
+    `, [
+      name, brand, model, category, description, image_url,
+      amazon_url, mediaworld_url, mediaworld_ricondizionati_url,
+      ldlc_url, akinformatica_url, nexths_url, subito_url,
+      slug
+    ]);
 
     res.status(201).json({
       success: true,
