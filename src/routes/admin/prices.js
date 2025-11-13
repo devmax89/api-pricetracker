@@ -21,10 +21,10 @@ router.get('/products/:productId/prices', async (req, res) => {
       FROM price_history
       WHERE product_id = $1
       ORDER BY scraped_at DESC
-      LIMIT 50
+      LIMIT 200
     `, [productId]);
 
-    // Prezzi USED (used_listings) - ✅ CORRETTO: external_url invece di url
+    // Prezzi USED (used_listings)
     const usedPrices = await db.query(`
       SELECT 
         id,
@@ -38,7 +38,7 @@ router.get('/products/:productId/prices', async (req, res) => {
       FROM used_listings
       WHERE product_id = $1
       ORDER BY scraped_at DESC
-      LIMIT 50
+      LIMIT 500
     `, [productId]);
 
     res.json({

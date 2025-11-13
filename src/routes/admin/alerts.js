@@ -90,9 +90,17 @@ router.get('/stats', async (req, res) => {
       FROM price_alerts
     `);
 
+    // 🆕 Aggiungi count scraping oggi
+    const scrapingToday = await db.query(`
+      SELECT COUNT(DISTINCT product_id) as count
+      FROM price_history
+      WHERE scraped_at >= CURRENT_DATE
+    `);
+
     res.json({
       success: true,
-      ...stats.rows[0]
+      ...stats.rows[0],
+      today_scrapings: scrapingToday.rows[0].count || 0, // 🆕
     });
   } catch (error) {
     console.error('Error fetching alert stats:', error);
