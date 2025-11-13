@@ -59,6 +59,7 @@ router.get('/', async (req, res) => {
         p.category as category_slug,
         p.description,
         p.image_url,
+        p.is_active,
         
         np.min_price as new_min_price,
         np.avg_price as new_avg_price,
