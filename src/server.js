@@ -12,7 +12,9 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(compression());
 app.use(morgan('combined'));

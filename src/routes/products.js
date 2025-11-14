@@ -95,9 +95,26 @@ router.get('/', async (req, res) => {
     
     const result = await pool.query(query, params);
     
+    // Get total count of active products (without LIMIT)
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM products p
+      WHERE p.is_active = true
+    `;
+    
+    const countParams = [];
+    if (category) {
+      countParams.push(category);
+      countQuery += ` AND p.category = $${countParams.length}`;
+    }
+    
+    const countResult = await pool.query(countQuery, countParams);
+    const totalCount = parseInt(countResult.rows[0].total);
+    
     res.json({
       success: true,
-      count: result.rows.length,
+      count: totalCount,  // Total number of products
+      returned: result.rows.length,  // Number of products in this response
       data: result.rows
     });
     
