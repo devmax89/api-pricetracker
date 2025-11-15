@@ -129,7 +129,7 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/products/:id
- * Dettaglio singolo prodotto
+ * Dettaglio singolo prodotto con prezzi aggregati per Schema.org
  */
 router.get('/:id', async (req, res) => {
   const productId = parseInt(req.params.id);
@@ -142,7 +142,8 @@ router.get('/:id', async (req, res) => {
   }
   
   try {
-    const query = `
+    // 1. Get product basic info
+    const productQuery = `
       SELECT 
         p.id,
         p.name,
@@ -166,18 +167,76 @@ router.get('/:id', async (req, res) => {
       WHERE p.id = $1
     `;
     
-    const result = await pool.query(query, [productId]);
+    const productResult = await pool.query(productQuery, [productId]);
     
-    if (result.rows.length === 0) {
+    if (productResult.rows.length === 0) {
       return res.status(404).json({ 
         success: false,
         error: 'Product not found' 
       });
     }
     
+    const product = productResult.rows[0];
+    
+    // 2. Get aggregated prices for Schema.org
+    const pricesQuery = `
+      WITH 
+      latest_prices AS (
+        SELECT DISTINCT ON (product_id, retailer)
+          product_id, retailer, price, scraped_at
+        FROM price_history
+        WHERE product_id = $1
+        ORDER BY product_id, retailer, scraped_at DESC
+      ),
+      new_prices AS (
+        SELECT 
+          MIN(price) as min_price,
+          MAX(price) as max_price,
+          AVG(price)::DECIMAL(10,2) as avg_price,
+          COUNT(DISTINCT retailer) as retailers_count
+        FROM latest_prices
+      ),
+      used_prices AS (
+        SELECT 
+          MIN(price) as min_price,
+          MAX(price) as max_price,
+          COUNT(*) as count
+        FROM used_listings
+        WHERE product_id = $1 AND is_active = true
+      )
+      
+      SELECT 
+        np.min_price as new_min_price,
+        np.max_price as new_max_price,
+        np.avg_price as new_avg_price,
+        np.retailers_count,
+        
+        up.min_price as used_min_price,
+        up.max_price as used_max_price,
+        up.count as used_count
+        
+      FROM new_prices np
+      FULL OUTER JOIN used_prices up ON true
+    `;
+    
+    const pricesResult = await pool.query(pricesQuery, [productId]);
+    const prices = pricesResult.rows[0] || {};
+    
+    // 3. Merge product data with prices
+    const response = {
+      ...product,
+      new_min_price: prices.new_min_price || null,
+      new_max_price: prices.new_max_price || null,
+      new_avg_price: prices.new_avg_price || null,
+      retailers_count: prices.retailers_count || 0,
+      used_min_price: prices.used_min_price || null,
+      used_max_price: prices.used_max_price || null,
+      used_count: prices.used_count || 0,
+    };
+    
     res.json({
       success: true,
-      data: result.rows[0]
+      data: response
     });
     
   } catch (error) {
