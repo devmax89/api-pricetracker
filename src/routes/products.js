@@ -17,7 +17,7 @@ const pool = new Pool({
  */
 router.get('/', async (req, res) => {
   const category = req.query.category;
-  const limit = parseInt(req.query.limit) || 50;
+  const limit = parseInt(req.query.limit) || 1000;
   
   try {
     let query = `
