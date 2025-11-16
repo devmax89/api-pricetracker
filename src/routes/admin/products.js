@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
       brand, 
       model, 
       category, 
-      description, 
+      description,
       image_url,
       amazon_url,
       mediaworld_url,
